@@ -1,0 +1,51 @@
+{
+  "name": "eftec/routeone",
+  "description": "Router service class for PHP",
+  "type": "library",
+  "keywords": [
+    "php",
+    "route",
+    "router",
+    "mvc"
+  ],
+  "homepage": "https://github.com/EFTEC/RouteOne",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jorge Patricio Castro Castillo",
+      "email": "jcastro@eftec.cl"
+    }
+  ],
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.9-dev"
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "7"
+    }
+  },
+  "require": {
+    "php": ">=7.0",
+    "ext-json": "*"
+  },
+  "archive": {
+    "exclude": [
+      "/examples"
+    ]
+  },
+  "autoload": {
+    "psr-4": {
+      "eftec\\routeone\\": "lib/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "eftec\\tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.7"
+  }
+}

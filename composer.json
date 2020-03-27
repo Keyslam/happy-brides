@@ -1,0 +1,15 @@
+{
+    "name": "tjakka5/happy_brides",
+    "type": "library",
+    "require": {
+        "eftec/pdoone": "^1.24",
+        "eftec/bladeone": "^3.37",
+        "eftec/routeone": "^1.9"
+    },
+    "authors": [
+        {
+            "name": "Justin van der Leij",
+            "email": "justinvanderleij@gmail.com"
+        }
+    ]
+}
