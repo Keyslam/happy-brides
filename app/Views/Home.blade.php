@@ -7,20 +7,20 @@
 		<div class="col s10 offset-s1">
 			<ul class="tabs tabs-fixed-width">
 				<li class="tab"><a href="#login-guest" class="active">Login Guest</a></li>
-				<li class="tab"><a href="#login-host">Login Host</a></li>
-				<li class="tab"><a href="#register">Register</a></li>
+				<li class="tab"><a href="#login-user">Login Host</a></li>
+				<li class="tab"><a href="#register-user">Register</a></li>
 			</ul>
 
 			<div id="login-guest">
 				@include('login-guest')
 			</div>
 
-			<div id="login-host">
-				@include('login-host')
+			<div id="login-user">
+				@include('login-user')
 			</div>
 
-			<div id="register">
-				@include('register-host')
+			<div id="register-user">
+				@include('register-user')
 			</div>
 
 			@if(isset($errors))

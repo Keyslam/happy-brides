@@ -1,4 +1,4 @@
-<form method="POST" action="{{ router()->getCurrentUrl() }}/Host/Register">
+<form method="POST" action="{{ router()->getCurrentUrl() }}/User/Register">
 	@csrf
 
 	<div class="input-field">

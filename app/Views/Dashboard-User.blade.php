@@ -1,6 +1,6 @@
 @extends('Layouts.BaseLayout')
 
-@section('title', 'Dashboard Host')
+@section('title', 'Dashboard User')
 
 @section('constrained-content')
 	<div class="row">
@@ -25,7 +25,7 @@
 				</div>
 			</div>
 
-			<form method="POST" action="{{ router()->getCurrentUrl() }}/Host/Logout">
+			<form method="POST" action="{{ router()->getCurrentUrl() }}/User/Logout">
 				<button class="btn waves-effect waves-light red submit">
 					Logout
 				</button>

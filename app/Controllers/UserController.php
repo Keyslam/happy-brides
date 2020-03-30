@@ -4,25 +4,24 @@ namespace app\Controllers;
 Use eftec\bladeone\BladeOne;
 Use eftec\PdoOne;
 
-class HostController {
+class UserController {
 	public function dashboardAction() {
-		if (!isset($_SESSION['event_id'])) {
-			header("Location: ../");
+		if (!isset($_SESSION['user_id'])) {
+			header('Location: ../');
 			die();
 		}
 
-		$event_id = $_SESSION['event_id'];
+		$user_id = $_SESSION['user_id'];
 
-		$fields = db()
-			->select('couple_name, access_code')
-			->from('event')
-			->where('id', $event_id)
-			->first();
+		$stmt = db()->prepare('CALL wishlist_user_view(:i_id, @o_name, @o_access_code)');
+		$stmt->bindValue(':i_id', $user_id);
+		$stmt->execute();
+		$result = $stmt->fetch();
 
-		if ($fields) {
-			echo blade()->run('Dashboard-Host', [
-				'couple_name' => $fields['couple_name'],
-				'access_code' => $fields['access_code']
+		if ($result) {
+			echo blade()->run('Dashboard-User', [
+				'couple_name' => $result['o_name'],
+				'access_code' => $result['o_access_code']
 			]);
 		}
 		else {
@@ -31,20 +30,22 @@ class HostController {
 	}
 
 	public function logoutAction() {
-		if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-			header("Location: ../404");
+		/*
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+			header('Location: ../404');
 			die();
 		}
+		*/
 
-		$_SESSION['event_id'] = null;
+		$_SESSION['user_id'] = null;
 
-		header("Location: ../");
+		header('Location: ../');
 		die();
 	}
 
 	public function loginAction() {
-		if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-			header("Location: ../404");
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+			header('Location: ../404');
 			die();
 		}
 
@@ -55,59 +56,55 @@ class HostController {
 			$errors = array();
 
 			if ($email_address === '') {
-				array_push($errors, "Field 'email_address' is empty");
+				array_push($errors, 'Field \'email_address\' is empty');
 			}
 
 			if ($password === '') {
-				array_push($errors, "Field 'password' is empty");
+				array_push($errors, 'Field \'password\' is empty');
 			}
 
 			if (count($errors) > 0)
 			{
 				flash($errors);
 
-				header("Location: ../");
+				header('Location: ../');
 				die();
 			}
 		}
 
 		$password_encrypted = self::encryptPassword($password);
 
-		$id = "Poep";
-
-		$stmt = db()->prepare("CALL user_login(?, ?, ?)");
-		$stmt->bindValue(1, "test");
-		$stmt->bindValue(2, "1234");
-		$stmt->bindParam(3, $id);
+		$stmt = db()->prepare('CALL user_login(:email_address, :password, @o_id)');
+		$stmt->bindValue(':email_address', $email_address);
+		$stmt->bindValue(':password', $password);
 		$stmt->execute();
+		$result = $stmt->fetch();
 
-		echo $id;
-
-		die();
+		$id = $result['o_id'];
 
 		if ($id) {
-			$_SESSION['event_id'] = $id;
+			$_SESSION['user_id'] = $id;
 
-			header("Location: Dashboard");
+			header('Location: Dashboard');
 			die();
 		}
 		else {
 			$error = array();
 
-			array_push($error, "Email address or password incorrect");
+			array_push($error, 'Email address or password incorrect');
 
 			if (count($error) > 0) {
 				flash($error);
 
-				header("Location: ../");
+				header('Location: ../');
 				die();
 			}
 		}
 	}
 
 	public function registerAction() {
-		if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-			header("Location: ../404");
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+			header('Location: ../404');
 			die();
 		}
 
@@ -120,49 +117,56 @@ class HostController {
 			$errors = array();
 
 			if ($couple_name === '') {
-				array_push($errors, "Field 'couple-name' is empty");
+				array_push($errors, 'Field \'couple-name\' is empty');
 			}
 
 			if ($email_address === '') {
-				array_push($errors, "Field 'email-address' is empty");
+				array_push($errors, 'Field \'email-address\' is empty');
 			}
 
 			if ($password === '') {
-				array_push($errors, "Field 'password' is empty");
+				array_push($errors, 'Field \'password\' is empty');
 			}
 
-			$email_taken = db()
-				->count()
-				->from('event')
-				->where('email_address', $email_address)
-				->firstScalar() > 0;
+			$taken;
+
+			$stmt = db()->prepare('CALL user_email_taken(:i_email_address, @o_taken)');
+			$stmt->bindValue('i_email_address', $email_address);
+			$stmt->execute();
+			$email_taken = $stmt->fetch()['o_taken'];
+			unset($stmt);
 
 			if ($email_taken) {
-				array_push($errors, "Email is already in use");
+				array_push($errors, 'Email is already in use');
 			}
 		
 			if (count($errors) > 0) {
 				flash($errors);
 
-				header("Location: ../");
+				header('Location: ../');
 				die();
 			}
 		}
 		
 		$password_encrypted = self::encryptPassword($password);
-		$access_code = self::createAccessCode();
+		//$access_code = self::createAccessCode();
 
-		db()
-			->insert('event', [
-				'couple_name'   => $couple_name,
-				'email_address' => $email_address,
-				'password'      => $password_encrypted,
-				'end_date'      => $end_date,
-				'access_code'   => $access_code
-			]
-		);
+		$stmt = db()->prepare('CALL user_register(:i_name, :i_email_address, :i_password, @o_success)');
+		$stmt->bindValue('i_name', $couple_name);
+		$stmt->bindValue('i_email_address', $email_address);
+		$stmt->bindValue('i_password', $password_encrypted);
+		$stmt->execute();
+		$success = $stmt->fetchColumn();
 
-		header("Location: ../");
+		if ($success) {
+			flash(['Something unexpected went wrong']);
+
+			header('Location: ../');
+			die();
+		}
+
+		flash(['Register succesful!']);
+		header('Location: ../');
 		die();
 	}
 

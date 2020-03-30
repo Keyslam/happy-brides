@@ -5,7 +5,7 @@ include 'app/app.php';
 
 // Load Controllers
 include 'app/Controllers/HomeController.php';
-include 'app/Controllers/HostController.php';
+include 'app/Controllers/UserController.php';
 include 'app/Controllers/GuestController.php';
 include 'app/Controllers/ItemController.php';
 

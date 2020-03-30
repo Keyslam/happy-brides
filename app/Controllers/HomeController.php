@@ -5,8 +5,8 @@ Use eftec\bladeone\BladeOne;
 
 class HomeController {
 	public function indexAction() {
-		if (isset($_SESSION['event_id'])) {
-			header("Location: Host/Dashboard");
+		if (isset($_SESSION['user_id'])) {
+			header('Location: User/Dashboard');
 			die();
 		}
 
@@ -16,7 +16,7 @@ class HomeController {
 			flash_clear();
 		}
 
-		echo blade()->run("Home", ['errors' => $errors]);
+		echo blade()->run('Home', ['errors' => $errors]);
 	}
 }
 ?>

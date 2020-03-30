@@ -1,4 +1,4 @@
-<form method="POST" action="{{ router()->getCurrentUrl() }}/Host/Login">
+<form method="POST" action="{{ router()->getCurrentUrl() }}/User/Login">
 	<div class="input-field">
 		<input placeholder="romeoandjuliet@dovemail.com" id="email-address" name="email-address" type="email" class="validate" required>
 		<label for="email-address">Email address</label>

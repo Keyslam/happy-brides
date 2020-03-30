@@ -4,7 +4,6 @@ include __DIR__.'/../vendor/autoload.php';
 // Load libraries
 Use eftec\bladeone\BladeOne;
 Use eftec\routeone\RouteOne;
-Use eftec\PdoOne;
 
 // Blade container
 function blade() {
