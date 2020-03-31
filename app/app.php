@@ -1,5 +1,5 @@
 <?
-include __DIR__.'/../vendor/autoload.php';
+include __DIR__."/../vendor/autoload.php";
 
 // Load libraries
 Use eftec\bladeone\BladeOne;
@@ -10,8 +10,8 @@ function blade() {
 	global $blade;
 
 	if ($blade == null) {
-		$blade = new BladeOne(__DIR__.'/Views', __DIR__.'/Compiles', BladeOne::MODE_DEBUG);
-		$blade->setBaseUrl('http://localhost/happy_brides/');
+		$blade = new BladeOne(__DIR__."/Views", __DIR__."/Compiles", BladeOne::MODE_DEBUG);
+		$blade->setBaseUrl("http://localhost/happy_brides/");
 	}
 
 	return $blade;
@@ -34,11 +34,11 @@ function db() {
 	global $db;
 
 	if ($db == null) {
-		$host    = 'localhost';
-		$db      = 'happy_brides';
-		$user    = 'root';
-		$pass    = '';
-		$charset = 'utf8mb4';
+		$host    = "localhost";
+		$db      = "happy_brides";
+		$user    = "root";
+		$pass    = "";
+		$charset = "utf8mb4";
 
 		$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 
@@ -55,10 +55,10 @@ function db() {
 }
 
 function flash($array) {
-	$_SESSION['flash'] = $array;
+	$_SESSION["flash"] = $array;
 }
 
 function flash_clear() {
-	$_SESSION['flash'] = array();
+	$_SESSION["flash"] = array();
 }
 ?>

@@ -1,6 +1,6 @@
-@extends('Layouts.BaseLayout')
+@extends("Layouts.BaseLayout")
 
-@section('title', '404 - Not Found')
+@section("title", "404 - Not Found")
 
 @section("constrained-content")
 	<div class="row">

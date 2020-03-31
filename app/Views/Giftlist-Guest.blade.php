@@ -1,26 +1,26 @@
-@if(count($items) > 0)
+@if(count($gifts_unclaimed) > 0 || count($gifts_claimed) > 0)
 	<br>
 
-	<h5 style="text-align: center;">Unclaimed items</h5>
+	<h5 style="text-align: center;">Unclaimed Gifts</h5>
 
-	<ul id="items" class="collection">
-		@foreach ($items as $item)
-			<li class="collection-item" data-id={{ $item['ID'] }}>
-				{{ $item['name'] }}
-				<i class="material-icons right valign-wrapper item-add">add_circle</i>
+	<ul id="gifts-unclaimed" class="collection">
+		@foreach ($gifts_unclaimed as $gift)
+			<li class="collection-item" data-id={{ $gift['ID'] }}>
+				{{ $gift["name"] }}
+				<i class="material-icons right valign-wrapper gift-add">add_circle</i>
 			</li>
 		@endforeach
 	<ul>
 
 	<br>
 
-	<h5 style="text-align: center;">Claimed items</h5>
+	<h5 style="text-align: center;">Claimed Gifts</h5>
 
-	<ul id="claimed-items" class="collection">
-		@foreach ($items_taken as $item)
+	<ul id="gifts-claimed" class="collection">
+		@foreach ($gifts_claimed as $gift)
 			<li class="collection-item">
-				{{ $item['name'] }}
-				<div class="right valign-wrapper">{{ $item['taken_by'] }}</div>
+				{{ $gift["name"] }}
+				<div class="right valign-wrapper">{{ $gift['claimed_by'] }}</div>
 			</li>
 		@endforeach
 	<ul>

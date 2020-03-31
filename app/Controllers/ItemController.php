@@ -12,22 +12,17 @@ class ItemController {
 		}
 
 		// Verify authentication
-		if (!isset($_SESSION['event_id'])) {
+		if (!isset($_SESSION["user_id"])) {
 			header("Location: ../");
 			die();
 		}
-		$event_ID = $_SESSION['event_id'];
+		$user_id = $_SESSION["user_id"];
+		$gift_name = $_POST["gift_name"]; // TODO checking
 
-		$item_name = $_POST["itemName"];
-
-		db()
-			->insert("gift", [
-				'event_ID' => $event_ID,
-				'name' => $item_name,
-				'taken' => 0
-			]);
-
-		echo self::getListAction();
+		$stmt = db()->prepare("CALL gift_add(:i_user_id, :i_gift_name)");
+		$stmt->bindValue("i_user_id", $user_id);
+		$stmt->bindValue("i_gift_name", $gift_name);
+		$stmt->execute();
 	}
 
 	public function deleteAction() {
@@ -38,153 +33,95 @@ class ItemController {
 		}
 
 		// Verify authentication
-		if (!isset($_SESSION['event_id'])) {
+		if (!isset($_SESSION["user_id"])) {
 			header("Location: ../");
 			die();
 		}
 
-		$event_ID = $_SESSION['event_id'];
-		$item_id = $_POST["item_id"];
+		$gift_id = $_POST["gift_id"];
 
-		db()
-			->delete("gift", [
-				'ID' => $item_id,
-				'event_ID' => $event_ID,
-			]);
-
-		echo self::getListAction();
+		$stmt = db()->prepare("CALL gift_delete(:i_gift_id)");
+		$stmt->bindValue("i_gift_id", $gift_id);
+		$stmt->execute();
 	}
 
 	public function moveAction() {
-		// Verify REQUEST_METHOD
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-			header('Location: ../404');
+		if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+			header("Location: ../404");
 			die();
 		}
 
-		// Verify authentication
-		if (!isset($_SESSION['event_id'])) {
-			header('Location: ../');
+		if (!isset($_SESSION["user_id"])) {
+			header("Location: ../");
 			die();
 		}
 
-		$event_ID = $_SESSION['event_id'];
-		$item_id = $_POST['item_id'];
-		$new_priority = $_POST['new_priority'];
+		$gift_id = $_POST["gift_id"];
+		$new_priority = $_POST["new_priority"];
 
-		$old_priority = db()
-			->select('priority')
-			->from('gift')
-			->where('ID', $item_id)
-			->firstScalar();
-
-		if ($old_priority == $new_priority) {
-			// Early out
-			echo self::getListAction();
-			die();
-		}
-		
-		/*
-
-		$direction = $new_index > $old_index ? 1 : -1; 
-
-		for ($i = $old_index + $direction; 
-			  ($direction == -1 && $i < 0) || ($direction == 1 && $i > 0); 
-			  $i += $direction) {
-
-			echo $i;
-		}
-		*/
-
-		/*
-		db()
-			->delete('gift', [
-				'ID' => $item_id,
-				'event_ID' => $event_ID,
-			]);
-		*/
-
-		echo self::getListAction();
+		$stmt = db()->prepare("CALL gift_set_priority(:i_gift_id, :i_new_priority)");
+		$stmt->bindValue("i_gift_id", $gift_id);
+		$stmt->bindValue("i_new_priority", $new_priority);
+		$stmt->execute();
 	}
 
 	public function getListAction() {
 		// Verify authentication
-		if (!isset($_SESSION['event_id'])) {
+		if (!isset($_SESSION["user_id"])) {
 			header("Location: ../404");
 			die();
 		}
 
-		$event_ID = $_SESSION['event_id'];
+		$user_id = $_SESSION["user_id"];
 
-		$items = db()
-			->select('ID, name')
-			->from('gift')
-			->where('event_ID', $event_ID)
-			->order('priority asc')
-			->toList();
+		$stmt = db()->prepare("CALL wishlist_user_items(:i_id)");
+		$stmt->bindValue("i_id", $user_id);
+		$success = $stmt->execute();
+		$items = $stmt->fetchAll();
 
-		echo blade()->run('Gift-List', ['items' => $items]);
+		echo blade()->run("Giftlist-User", ["items" => $items]);
 	}
 
 	public function getListAsGuestAction() {
 		// Verify authentication
-		if (!isset($_SESSION['event_id_guest'])) {
+		if (!isset($_SESSION["guest_wishlist_id"])) {
 			header("Location: ../404");
 			die();
 		}
 
-		$event_ID = $_SESSION['event_id_guest'];
+		$wishlist_ID = $_SESSION["guest_wishlist_id"];
 
-		$items = db()
-			->select('ID, name')
-			->from('gift')
-			->where([
-				'event_ID' => $event_ID,
-				'taken'    => false
-			])
-			->order('priority asc')
-			->toList();
+		$stmt = db()->prepare("CALL wishlist_guest_gifts_unclaimed(:i_wishlist_id)");
+		$stmt->bindValue("i_wishlist_id", $wishlist_ID);
+		$success = $stmt->execute();
+		$gifts_unclaimed = $stmt->fetchAll();
+		$stmt = null;
 
-		$items_taken = db()
-			->select('name, taken_by')
-			->from('gift')
-			->where([
-				'event_ID' => $event_ID,
-				'taken'    => true
-			])
-			->order('priority asc')
-			->toList();
+		$stmt = db()->prepare("CALL wishlist_guest_gifts_claimed(:i_wishlist_id)");
+		$stmt->bindValue("i_wishlist_id", $wishlist_ID);
+		$success = $stmt->execute();
+		$gifts_claimed = $stmt->fetchAll();
+		$stmt = null;
 
-		echo blade()->run('Gift-List-Guest', ['items' => $items, 'items_taken' => $items_taken]);
+		echo blade()->run("Giftlist-Guest", ["gifts_unclaimed" => $gifts_unclaimed, "gifts_claimed" => $gifts_claimed]);
 	}
 
 	public function claimAction() {
 		// Verify authentication
-		if (!isset($_SESSION['event_id_guest'])) {
+		if (!isset($_SESSION["guest_name"])) {
 			header("Location: ../404");
 			die();
 		}
 
-		$item_id = isset($_POST['item_id']) ? filter_var($_POST['item_id'], FILTER_SANITIZE_NUMBER_INT)  : '';
-
-		{
-			if ($item_id == '')
-			{
-				die();
-			}
-		}
+		$gift_id = isset($_POST["gift_id"]) ? filter_var($_POST["gift_id"], FILTER_SANITIZE_NUMBER_INT)  : "";
 
 		$guest_name = $_SESSION['guest_name'];
 
-		db()
-			->update('gift', [
-				'taken' => true,
-				'taken_by' => $guest_name
-			], [
-				'ID' => $item_id
-			]);
-
-		echo self::getListAsGuestAction();
+		$stmt = db()->prepare("CALL gift_claim(:i_gift_id, :i_claimed_by)");
+		$stmt->bindValue("i_gift_id", $gift_id);
+		$stmt->bindValue("i_claimed_by", $guest_name);
+		$success = $stmt->execute();
+		$stmt = null;
 	}
 }
 ?>

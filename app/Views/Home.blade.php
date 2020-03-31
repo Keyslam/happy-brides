@@ -1,8 +1,8 @@
-@extends('Layouts.BaseLayout');
+@extends("Layouts.BaseLayout");
 
-@section('title', 'Login');
+@section("title", "Login");
 
-@section('constrained-content')
+@section("constrained-content")
 	<div class="row">
 		<div class="col s10 offset-s1">
 			<ul class="tabs tabs-fixed-width">

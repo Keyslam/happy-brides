@@ -4,8 +4,8 @@
 
 <?php $this->startSection('constrained-content'); ?>
 	<div class="row">
- <div class="col s12">
- <h4>Welcome <?php echo static::e($couple_name); ?></h4>
+ <div class="col s10">
+ <h4>Welcome <?php echo static::e($couple_name); ?> - <?php echo static::e($access_code); ?></h4>
 
  <form id="item-form">
  <label for="input-item-name">Item</label>
@@ -15,6 +15,8 @@
  Add
  <i class="material-icons right">add</i>
  </button>
+
+ 
  </form>
 
  <br>
@@ -24,6 +26,9 @@
  
  </div>
  </div>
+ <p>
+ <b>Drag and drop gifts to order them by priority!</b>
+ </p>
 
  <form method="POST" action="<?php echo static::e(router()->getCurrentUrl()); ?>/User/Logout">
  <button class="btn waves-effect waves-light red submit">
@@ -37,70 +42,71 @@
 <?php $this->startSection('scripts'); ?>
 <script>
 	$(document).ready(function() {
- $.ajax({
- url: "http://localhost/happy_brides/Item/GetList",
- dataType: "html",
- })
- .done(renderList)
- .fail(failHandler);
+ updateList();
 
  // Setup add item button
  $("#item-form").on("submit", function(ev) {
  ev.preventDefault();
 
- var itemName = $("#input-item-name").val();
+ var giftName = $("#input-item-name").val();
+ $("#input-item-name").val("");
 
- addItem(itemName);
+ addItem(giftName);
  });
 	});
 
 	function onUpdate(event, ui) {
- var item_id = $(ui.item).data("id");
+ var giftID = $(ui.item).data("id");
 
- var new_index = ui.item.index();
+ var newIndex = ui.item.index();
 
  $.ajax({
  method: "POST",
  url: "http://localhost/happy_brides/Item/Move",
  data: {
- item_id: item_id,
- new_priority: new_index
+ gift_id: giftID,
+ new_priority: newIndex
  },
  dataType: "html",
  })
- .done(renderList)
+ .done(updateList)
  .fail(failHandler);
 	}
 
 	function removeItem(event) {
- var item_id = $(event.target).parent().data("id");
+ var giftID = $(event.target).parent().data("id");
 
  $.ajax({
  method: "POST",
  url: "http://localhost/happy_brides/Item/Delete",
  data: {
- item_id: item_id
+ gift_id: giftID
  },
  dataType: "html",
  })
- .done(renderList)
+ .done(updateList)
  .fail(failHandler);
 	}
 
-	function addItem(itemName) {
+	function addItem(giftName) {
  $.ajax({
  method: "POST",
  url: "http://localhost/happy_brides/Item/Add",
  data: {
- itemName: itemName
+ gift_name: giftName
  },
  dataType: "html",
  })
- .done(renderList)
+ .done(updateList)
  .fail(failHandler);
 	}
 
-	function renderList(data) {
+	function updateList() {
+ $.ajax({
+ url: "http://localhost/happy_brides/Item/GetList",
+ dataType: "html",
+ })
+ .done(function(data) {
  $("#gift-list").html(data);
 
  $("#items").sortable({
@@ -109,7 +115,9 @@
  $("#items").disableSelection();
 
  $(".item-remove").click(removeItem);
-	}
+ })
+ .fail(failHandler);
+	}                          
 
 	function failHandler(data) {
  alert("Something went wrong.");

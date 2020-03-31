@@ -1,8 +1,8 @@
-@extends('Layouts.BaseLayout')
+@extends("Layouts.BaseLayout")
 
-@section('title', 'Dashboard Guest')
+@section("title", "Dashboard Guest")
 
-@section('constrained-content')
+@section("constrained-content")
 	<div class="row">
 		<div class="col s12">
 			<div class="card">
@@ -20,35 +20,37 @@
 	</div>
 @endsection()
 
-@section('scripts')
+@section("scripts")
 <script>
 	$(document).ready(function() {
-		$.ajax({
-			url: "http://localhost/happy_brides/Item/getListAsGuest",
-			dataType: "html",
-		})
-		.done(renderList)
-		.fail(failHandler);
+		updateList();
 	});
 
-	function renderList(data) {
-		$("#gift-list").html(data);
+	function updateList() {
+		$.ajax({
+			url: "http://localhost/happy_brides/Item/GetListAsGuest",
+			dataType: "html",
+		})
+		.done(function(data) {
+			$("#gift-list").html(data);
 
-		$(".item-add").click(claimItem);
-	}
+			$(".gift-add").click(claimItem);
+		})
+		.fail(failHandler);
+	}              
 
 	function claimItem(event) {
-		var item_id = $(event.target).parent().data("id");
+		var giftID = $(event.target).parent().data("id");
 
 		$.ajax({
 			method: "POST",
 			url: "http://localhost/happy_brides/Item/Claim",
 			data: {
-				item_id: item_id
+				gift_id: giftID
 			},
 			dataType: "html",
 		})
-		.done(renderList)
+		.done(updateList)
 		.fail(failHandler);
 	}
 

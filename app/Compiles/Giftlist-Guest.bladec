@@ -1,0 +1,29 @@
+<?php if(count($gifts_unclaimed) > 0 || count($gifts_claimed) > 0): ?>
+	<br>
+
+	<h5 style="text-align: center;">Unclaimed Gifts</h5>
+
+	<ul id="gifts-unclaimed" class="collection">
+ <?php $__currentLoopData = $gifts_unclaimed; $this->addLoop($__currentLoopData); foreach($__currentLoopData as $gift): $this->incrementLoopIndices(); $loop = $this->getFirstLoop(); ?>
+ <li class="collection-item" data-id=<?php echo static::e($gift['ID']); ?>>
+ <?php echo static::e($gift['name']); ?>
+
+ <i class="material-icons right valign-wrapper gift-add">add_circle</i>
+ </li>
+ <?php endforeach; $this->popLoop(); $loop = $this->getFirstLoop(); ?>
+	<ul>
+
+	<br>
+
+	<h5 style="text-align: center;">Claimed Gifts</h5>
+
+	<ul id="gifts-claimed" class="collection">
+ <?php $__currentLoopData = $gifts_claimed; $this->addLoop($__currentLoopData); foreach($__currentLoopData as $gift): $this->incrementLoopIndices(); $loop = $this->getFirstLoop(); ?>
+ <li class="collection-item">
+ <?php echo static::e($gift['name']); ?>
+
+ <div class="right valign-wrapper"><?php echo static::e($gift['claimed_by']); ?></div>
+ </li>
+ <?php endforeach; $this->popLoop(); $loop = $this->getFirstLoop(); ?>
+	<ul>
+<?php endif; ?>

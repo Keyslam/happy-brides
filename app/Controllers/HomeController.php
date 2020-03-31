@@ -5,18 +5,23 @@ Use eftec\bladeone\BladeOne;
 
 class HomeController {
 	public function indexAction() {
-		if (isset($_SESSION['user_id'])) {
-			header('Location: User/Dashboard');
+		if (isset($_SESSION["user_id"])) {
+			header("Location: User/Dashboard");
+			die();
+		}
+
+		if (isset($_SESSION["guest_name"])) {
+			header("Location: Guest/Dashboard");
 			die();
 		}
 
 		$errors = null;
-		if (isset($_SESSION['flash'])) {
-			$errors = $_SESSION['flash'];
+		if (isset($_SESSION["flash"])) {
+			$errors = $_SESSION["flash"];
 			flash_clear();
 		}
 
-		echo blade()->run('Home', ['errors' => $errors]);
+		echo blade()->run("Home", ["errors" => $errors]);
 	}
 }
 ?>
