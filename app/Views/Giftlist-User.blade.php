@@ -1,9 +1,9 @@
-@if(count($items) > 0)
-	<ul id="items" class="collection">
-		@foreach ($items as $item)
-			<li class="collection-item" data-id={{ $item["ID"] }}>
-				{{ $item["name"] }}
-				<i class="material-icons right valign-wrapper item-remove">delete_forever</i>
+@if(count($gifts) > 0)
+	<ul id="gifts" class="collection">
+		@foreach ($gifts as $gift)
+			<li class="collection-item" data-id={{ $gift["ID"] }}>
+				{{ $gift["name"] }}
+				<i class="material-icons right valign-wrapper gift-remove">delete_forever</i>
 			</li>
 		@endforeach
 	<ul>

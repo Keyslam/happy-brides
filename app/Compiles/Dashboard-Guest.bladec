@@ -1,8 +1,8 @@
 <?php $_shouldextend[1]=1; ?>
 
-<?php $this->startSection('title', 'Dashboard Guest'); ?>
+<?php $this->startSection("title", "Dashboard Guest"); ?>
 
-<?php $this->startSection('constrained-content'); ?>
+<?php $this->startSection("constrained-content"); ?>
 	<div class="row">
  <div class="col s12">
  <div class="card">
@@ -20,7 +20,7 @@
 	</div>
 <?php $this->stopSection(); ?>
 
-<?php $this->startSection('scripts'); ?>
+<?php $this->startSection("scripts"); ?>
 <script>
 	$(document).ready(function() {
  updateList();
@@ -28,23 +28,23 @@
 
 	function updateList() {
  $.ajax({
- url: "http://localhost/happy_brides/Item/GetListAsGuest",
+ url: "http://localhost/happy_brides/Gift/GetListAsGuest",
  dataType: "html",
  })
  .done(function(data) {
  $("#gift-list").html(data);
 
- $(".gift-add").click(claimItem);
+ $(".gift-claim").click(claimGift);
  })
  .fail(failHandler);
 	}              
 
-	function claimItem(event) {
+	function claimGift(event) {
  var giftID = $(event.target).parent().data("id");
 
  $.ajax({
  method: "POST",
- url: "http://localhost/happy_brides/Item/Claim",
+ url: "http://localhost/happy_brides/Gift/Claim",
  data: {
  gift_id: giftID
  },
@@ -59,4 +59,4 @@
 	}
 </script>
 <?php $this->stopSection(); ?>
-<?php if (@$_shouldextend[1]) { echo $this->runChild('Layouts.BaseLayout'); } ?>
+<?php if (@$_shouldextend[1]) { echo $this->runChild("Layouts.BaseLayout"); } ?>

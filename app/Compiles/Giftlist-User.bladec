@@ -1,10 +1,10 @@
-<?php if(count($items) > 0): ?>
-	<ul id="items" class="collection">
- <?php $__currentLoopData = $items; $this->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $this->incrementLoopIndices(); $loop = $this->getFirstLoop(); ?>
- <li class="collection-item" data-id=<?php echo static::e($item['ID']); ?>>
- <?php echo static::e($item['name']); ?>
+<?php if(count($gifts) > 0): ?>
+	<ul id="gifts" class="collection">
+ <?php $__currentLoopData = $gifts; $this->addLoop($__currentLoopData); foreach($__currentLoopData as $gift): $this->incrementLoopIndices(); $loop = $this->getFirstLoop(); ?>
+ <li class="collection-item" data-id=<?php echo static::e($gift["ID"]); ?>>
+ <?php echo static::e($gift["name"]); ?>
 
- <i class="material-icons right valign-wrapper item-remove">delete_forever</i>
+ <i class="material-icons right valign-wrapper gift-remove">delete_forever</i>
  </li>
  <?php endforeach; $this->popLoop(); $loop = $this->getFirstLoop(); ?>
 	<ul>

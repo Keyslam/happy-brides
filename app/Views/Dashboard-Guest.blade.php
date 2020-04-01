@@ -28,23 +28,23 @@
 
 	function updateList() {
 		$.ajax({
-			url: "http://localhost/happy_brides/Item/GetListAsGuest",
+			url: "http://localhost/happy_brides/Gift/GetListAsGuest",
 			dataType: "html",
 		})
 		.done(function(data) {
 			$("#gift-list").html(data);
 
-			$(".gift-add").click(claimItem);
+			$(".gift-claim").click(claimGift);
 		})
 		.fail(failHandler);
 	}              
 
-	function claimItem(event) {
+	function claimGift(event) {
 		var giftID = $(event.target).parent().data("id");
 
 		$.ajax({
 			method: "POST",
-			url: "http://localhost/happy_brides/Item/Claim",
+			url: "http://localhost/happy_brides/Gift/Claim",
 			data: {
 				gift_id: giftID
 			},

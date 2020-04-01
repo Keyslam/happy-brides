@@ -7,7 +7,7 @@
 		@foreach ($gifts_unclaimed as $gift)
 			<li class="collection-item" data-id={{ $gift['ID'] }}>
 				{{ $gift["name"] }}
-				<i class="material-icons right valign-wrapper gift-add">add_circle</i>
+				<i class="material-icons right valign-wrapper gift-claim">add_circle</i>
 			</li>
 		@endforeach
 	<ul>

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.1
+-- version 4.9.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 01, 2020 at 09:39 AM
+-- Generation Time: Apr 01, 2020 at 01:50 PM
 -- Server version: 10.4.11-MariaDB
--- PHP Version: 7.4.3
+-- PHP Version: 7.2.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -64,9 +64,9 @@ BEGIN
     SELECT priority INTO v_old_priority FROM gifts WHERE ID=i_gift_id;
 
 	UPDATE gifts SET priority=priority-1
-    WHERE priority > v_old_priority AND priority <= i_new_priority;
+    WHERE priority >= v_old_priority AND priority <= i_new_priority;
     
-    UPDATE gifts SET priority=priority+1 where priority < v_old_priority AND priority >= i_new_priority;
+    UPDATE gifts SET priority=priority+1 where priority <= v_old_priority AND priority >= i_new_priority;
     
     UPDATE gifts SET priority=i_new_priority where ID=i_gift_id;
 END$$
@@ -77,19 +77,19 @@ BEGIN
 	SELECT ID FROM wishlists WHERE access_code=i_access_code LIMIT 1;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `user_email_taken` (IN `i_email_address` VARCHAR(60), OUT `o_taken` TINYINT(1))  READS SQL DATA
+CREATE DEFINER=`root`@`localhost` PROCEDURE `user_email_taken` (IN `i_email_address` VARCHAR(60))  READS SQL DATA
     SQL SECURITY INVOKER
 begin
-    SELECT COUNT(*) > 0 as o_taken FROM users WHERE email_address=i_email_address;
+    SELECT COUNT(*) > 0 FROM users WHERE email_address=i_email_address;
 end$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `user_login` (IN `i_email_address` VARCHAR(30), IN `i_password` VARCHAR(64), OUT `o_id` INT UNSIGNED)  READS SQL DATA
+CREATE DEFINER=`root`@`localhost` PROCEDURE `user_login` (IN `i_email_address` VARCHAR(30), IN `i_password` VARCHAR(64))  READS SQL DATA
     SQL SECURITY INVOKER
 begin
-	select id as o_id from users WHERE email_address=i_email_address AND password=i_password LIMIT 1;
+	select id from users WHERE email_address=i_email_address AND password=i_password LIMIT 1;
 end$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `user_register` (IN `i_name` VARCHAR(30), IN `i_email_address` VARCHAR(60), IN `i_password` VARCHAR(64), OUT `o_success` TINYINT(1))  MODIFIES SQL DATA
+CREATE DEFINER=`root`@`localhost` PROCEDURE `user_register` (IN `i_name` VARCHAR(30), IN `i_email_address` VARCHAR(60), IN `i_password` VARCHAR(64))  MODIFIES SQL DATA
     SQL SECURITY INVOKER
 begin
 	DECLARE var_wishlist_id INT UNSIGNED;
@@ -99,9 +99,9 @@ begin
     IF var_wishlist_id THEN
 
     INSERT INTO users(wishlist_ID, name, email_address, password) VALUES(var_wishlist_id, i_name, i_email_address, i_password);
-    SELECT ROW_COUNT() > 0 INTO o_success;
+    SELECT ROW_COUNT() > 0;
     ELSE
-    	SET o_success = false;
+    	SELECT false;
     END IF;
 end$$
 
@@ -126,13 +126,13 @@ begin
     SELECT ID, name FROM gifts WHERE wishlist_ID = i_wishlist_id AND claimed_by IS NULL ORDER BY priority ASC;
 end$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `wishlist_user_data` (IN `i_id` INT UNSIGNED, OUT `o_name` VARCHAR(30), OUT `o_access_code` VARCHAR(4))  READS SQL DATA
+CREATE DEFINER=`root`@`localhost` PROCEDURE `wishlist_user_data` (IN `i_id` INT UNSIGNED)  READS SQL DATA
     SQL SECURITY INVOKER
 begin
-    SELECT users.name as o_name, wishlists.access_code as o_access_code FROM users INNER JOIN wishlists ON wishlists.ID = users.wishlist_ID WHERE users.ID=i_id LIMIT 1;
+    SELECT users.name, wishlists.access_code FROM users INNER JOIN wishlists ON wishlists.ID = users.wishlist_ID WHERE users.ID=i_id LIMIT 1;
 end$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `wishlist_user_items` (IN `i_id` INT UNSIGNED)  READS SQL DATA
+CREATE DEFINER=`root`@`localhost` PROCEDURE `wishlist_user_gifts` (IN `i_id` INT UNSIGNED)  READS SQL DATA
     SQL SECURITY INVOKER
 begin
     SELECT gifts.ID, gifts.name FROM gifts INNER JOIN users ON gifts.wishlist_ID = users.wishlist_ID WHERE users.ID = i_id ORDER BY priority ASC;
@@ -154,18 +154,6 @@ CREATE TABLE `gifts` (
   `claimed_by` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `gifts`
---
-
-INSERT INTO `gifts` (`ID`, `wishlist_ID`, `name`, `priority`, `claimed_by`) VALUES
-(40, 20, 'kittens', 2, NULL),
-(41, 20, 'moneys', 3, 'Mijn moeder'),
-(42, 20, 'u', 5, NULL),
-(43, 20, 'me', 6, NULL),
-(44, 20, 'food', 1, NULL),
-(45, 20, 'appels', 4, 'Je moeder');
-
 -- --------------------------------------------------------
 
 --
@@ -180,13 +168,6 @@ CREATE TABLE `users` (
   `password` varchar(64) NOT NULL COMMENT 'Size of SHA(256) encryption'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`ID`, `wishlist_ID`, `name`, `email_address`, `password`) VALUES
-(18, 20, 'meandu', 'amberEnJustin@love.com', '1aaaaaf984713ba7f8ab1d4f239b4984f89a0c6a1b402b9d71507ae263ee1de2');
-
 -- --------------------------------------------------------
 
 --
@@ -197,13 +178,6 @@ CREATE TABLE `wishlists` (
   `ID` int(10) UNSIGNED NOT NULL,
   `access_code` varchar(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `wishlists`
---
-
-INSERT INTO `wishlists` (`ID`, `access_code`) VALUES
-(20, 'c8d0');
 
 --
 -- Indexes for dumped tables
@@ -240,19 +214,19 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `gifts`
 --
 ALTER TABLE `gifts`
-  MODIFY `ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `wishlists`
 --
 ALTER TABLE `wishlists`
-  MODIFY `ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

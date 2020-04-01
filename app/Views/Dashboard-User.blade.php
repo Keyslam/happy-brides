@@ -7,11 +7,11 @@
 		<div class="col s10">
 			<h4>Welcome {{ $couple_name }} - {{ $access_code }}</h4>
 
-			<form id="item-form">
-				<label for="input-item-name">Item</label>
-				<input id="input-item-name" name="input-item" type="text" required>
+			<form id="gift-form">
+				<label for="input-gift-name">Item</label>
+				<input id="input-gift-name" name="input-gift" type="text" required>
 
-				<button class="btn waves-effect waves-light submit" id="item-add" type="submit">
+				<button class="btn waves-effect waves-light submit" id="gift-add" type="submit">
 					Add
 					<i class="material-icons right">add</i>
 				</button>
@@ -44,14 +44,14 @@
 	$(document).ready(function() {
 		updateList();
 
-		// Setup add item button
-		$("#item-form").on("submit", function(ev) {
+		// Setup add gift button
+		$("#gift-form").on("submit", function(ev) {
 			ev.preventDefault();
 
-			var giftName = $("#input-item-name").val();
-			$("#input-item-name").val("");
+			var giftName = $("#input-gift-name").val();
+			$("#input-gift-name").val("");
 
-			addItem(giftName);
+			addGift(giftName);
 		});
 	});
 
@@ -62,7 +62,7 @@
 
 		$.ajax({
 			method: "POST",
-			url: "http://localhost/happy_brides/Item/Move",
+			url: "http://localhost/happy_brides/Gift/Move",
 			data: {
 				gift_id: giftID,
 				new_priority: newIndex
@@ -73,12 +73,12 @@
 		.fail(failHandler);
 	}
 
-	function removeItem(event) {
+	function removeGift(event) {
 		var giftID = $(event.target).parent().data("id");
 
 		$.ajax({
 			method: "POST",
-			url: "http://localhost/happy_brides/Item/Delete",
+			url: "http://localhost/happy_brides/Gift/Delete",
 			data: {
 				gift_id: giftID
 			},
@@ -88,10 +88,10 @@
 		.fail(failHandler);
 	}
 
-	function addItem(giftName) {
+	function addGift(giftName) {
 		$.ajax({
 			method: "POST",
-			url: "http://localhost/happy_brides/Item/Add",
+			url: "http://localhost/happy_brides/Gift/Add",
 			data: {
 				gift_name: giftName
 			},
@@ -103,18 +103,18 @@
 
 	function updateList() {
 		$.ajax({
-			url: "http://localhost/happy_brides/Item/GetList",
+			url: "http://localhost/happy_brides/Gift/GetList",
 			dataType: "html",
 		})
 		.done(function(data) {
 			$("#gift-list").html(data);
 
-			$("#items").sortable({
+			$("#gifts").sortable({
 				update: onUpdate,
 			});
-			$("#items").disableSelection();
+			$("#gifts").disableSelection();
 
-			$(".item-remove").click(removeItem);
+			$(".gift-remove").click(removeGift);
 			})
 		.fail(failHandler);
 	}                          
